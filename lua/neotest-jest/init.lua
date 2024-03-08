@@ -18,71 +18,10 @@ local adapter = { name = "neotest-jest" }
 
 local rootPackageJson = vim.fn.getcwd() .. "/package.json"
 
----@return boolean
-local function rootProjectHasJestDependency()
-  local path = rootPackageJson
-
-  local success, packageJsonContent = pcall(lib.files.read, path)
-  if not success then
-    print("cannot read package.json")
-    return false
-  end
-
-  local parsedPackageJson = vim.json.decode(packageJsonContent)
-
-  if parsedPackageJson["dependencies"] then
-    for key, _ in pairs(parsedPackageJson["dependencies"]) do
-      if key == "jest" then
-        return true
-      end
-    end
-  end
-
-  if parsedPackageJson["devDependencies"] then
-    for key, _ in pairs(parsedPackageJson["devDependencies"]) do
-      if key == "jest" then
-        return true
-      end
-    end
-  end
-
-  return false
-end
-
 ---@param path string
 ---@return boolean
 local function hasJestDependency(path)
-  local rootPath = lib.files.match_root_pattern("package.json")(path)
-
-  if not rootPath then
-    return false
-  end
-
-  local success, packageJsonContent = pcall(lib.files.read, rootPath .. "/package.json")
-  if not success then
-    print("cannot read package.json")
-    return false
-  end
-
-  local parsedPackageJson = vim.json.decode(packageJsonContent)
-
-  if parsedPackageJson["dependencies"] then
-    for key, _ in pairs(parsedPackageJson["dependencies"]) do
-      if key == "jest" then
-        return true
-      end
-    end
-  end
-
-  if parsedPackageJson["devDependencies"] then
-    for key, _ in pairs(parsedPackageJson["devDependencies"]) do
-      if key == "jest" then
-        return true
-      end
-    end
-  end
-
-  return rootProjectHasJestDependency()
+  return os.execute("npx --no -- jest --version")
 end
 
 adapter.root = function(path)
